@@ -64,6 +64,12 @@ parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
 parser.add_argument('--ksize', default=None, type=list,
                     help='Manually select the eca module kernel size')
+parser.add_argument('--num-classes', default=1000, type=int, metavar='N',
+                    help='number of dataset classes (default: 1000, ImageNet)')
+parser.add_argument('--image-size', default=224, type=int, metavar='N',
+                    help='train/val crop size (default: 224)')
+parser.add_argument('--amp', dest='amp', action='store_true',
+                    help='train with automatic mixed precision')
 parser.add_argument('--action', default='', type=str,
                     help='other information.')
                     
@@ -98,13 +104,13 @@ def main():
     # create model
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
-        model = models.__dict__[args.arch](k_size=args.ksize, pretrained=True)
+        model = models.__dict__[args.arch](k_size=args.ksize, num_classes=args.num_classes, pretrained=True)
     else:
         print("=> creating model '{}'".format(args.arch))
         if args.ksize == None:
-            model = models.__dict__[args.arch]()
+            model = models.__dict__[args.arch](num_classes=args.num_classes)
         else:
-            model = models.__dict__[args.arch](k_size=args.ksize)
+            model = models.__dict__[args.arch](k_size=args.ksize, num_classes=args.num_classes)
 
     if args.gpu is not None:
         model = model.cuda(args.gpu)
@@ -132,6 +138,9 @@ def main():
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
 
+    # loss scaling keeps fp16 gradients from underflowing; a no-op when --amp is off
+    scaler = torch.amp.GradScaler('cuda', enabled=args.amp)
+
     # optionally resume from a checkpoint
     if args.resume:
         if os.path.isfile(args.resume):
@@ -155,10 +164,13 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
+    # the validation short side keeps the standard 256/224 ratio to the crop
+    resize_size = int(round(args.image_size * 256 / 224))
+
     train_dataset = datasets.ImageFolder(
         traindir,
         transforms.Compose([
-            transforms.RandomResizedCrop(224),
+            transforms.RandomResizedCrop(args.image_size),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize,
@@ -175,8 +187,8 @@ def main():
 
     val_loader = torch.utils.data.DataLoader(
         datasets.ImageFolder(valdir, transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
+            transforms.Resize(resize_size),
+            transforms.CenterCrop(args.image_size),
             transforms.ToTensor(),
             normalize,
         ])),
@@ -208,7 +220,7 @@ def main():
 
         # train for one epoch
         # train(train_loader, model, criterion, optimizer, epoch)
-        loss_temp, train_prec1_temp, train_prec5_temp = train(train_loader, model, criterion, optimizer, epoch)
+        loss_temp, train_prec1_temp, train_prec5_temp = train(train_loader, model, criterion, optimizer, epoch, scaler)
         Loss_plot[epoch] = loss_temp
         train_prec1_plot[epoch] = train_prec1_temp
         train_prec5_plot[epoch] = train_prec5_temp
@@ -244,7 +256,7 @@ def main():
         print("-" * 80)
 
 
-def train(train_loader, model, criterion, optimizer, epoch):
+def train(train_loader, model, criterion, optimizer, epoch, scaler):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
@@ -264,19 +276,21 @@ def train(train_loader, model, criterion, optimizer, epoch):
         target = target.cuda(args.gpu, non_blocking=True)
 
         # compute output
-        output = model(input)
-        loss = criterion(output, target)
+        with torch.amp.autocast('cuda', enabled=args.amp):
+            output = model(input)
+            loss = criterion(output, target)
 
         # measure accuracy and record loss
-        prec1, prec5 = accuracy(output, target, topk=(1, 5))
+        prec1, prec5 = accuracy(output.float(), target, topk=(1, 5))
         losses.update(loss.item(), input.size(0))
         top1.update(prec1[0], input.size(0))
         top5.update(prec5[0], input.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -313,11 +327,12 @@ def validate(val_loader, model, criterion):
             target = target.cuda(args.gpu, non_blocking=True)
 
             # compute output
-            output = model(input)
-            loss = criterion(output, target)
+            with torch.amp.autocast('cuda', enabled=args.amp):
+                output = model(input)
+                loss = criterion(output, target)
 
             # measure accuracy and record loss
-            prec1, prec5 = accuracy(output, target, topk=(1, 5))
+            prec1, prec5 = accuracy(output.float(), target, topk=(1, 5))
             losses.update(loss.item(), input.size(0))
             top1.update(prec1[0], input.size(0))
             top5.update(prec5[0], input.size(0))
@@ -387,7 +402,7 @@ def accuracy(output, target, topk=(1,)):
 
         res = []
         for k in topk:
-            correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+            correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
 

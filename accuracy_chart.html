@@ -1,0 +1,205 @@
+<title>ECA-ResNet50 on ImageNet-100 — accuracy</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1: #fcfcfb; --surface-2: #f4f3f0;
+    --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #78766f;
+    --grid: #e4e3de; --border: #e0dfda;
+    --train: #2a78d6; --val: #eb6834;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1: #1a1a19; --surface-2: #232322;
+      --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #97958b;
+      --grid: #333331; --border: #35342f;
+      --train: #3987e5; --val: #d95926;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --surface-2: #232322;
+    --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #97958b;
+    --grid: #333331; --border: #35342f;
+    --train: #3987e5; --val: #d95926;
+  }
+  .viz-root {
+    background: var(--surface-1); color: var(--text-primary);
+    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 32px 24px 48px; min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .sub { color: var(--text-secondary); font-size: 13.5px; margin: 0 0 4px; }
+  .cmd { color: var(--text-muted); font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          margin: 0 0 28px; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .tile { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .tile .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+  .tile .v { font-size: 27px; font-weight: 600; letter-spacing: -0.02em; margin-top: 4px;
+              font-variant-numeric: tabular-nums; }
+  .tile .n { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  .legend { display: flex; gap: 20px; align-items: center; margin-bottom: 6px; font-size: 13px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+  .swatch.train { background: var(--train); }
+  .swatch.val { background: var(--val); }
+
+  .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 22px; }
+  .panel { margin: 0; position: relative; }
+  .panel-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+  svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .grid { stroke: var(--grid); stroke-width: 1; }
+  .tick { fill: var(--text-muted); font-size: 11px; }
+  .ytick { text-anchor: end; } .xtick { text-anchor: middle; }
+  .axis-label { fill: var(--text-muted); font-size: 11.5px; text-anchor: middle; }
+  .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .line.train, .end.train, .hdot.train { stroke: var(--train); }
+  .line.val, .end.val, .hdot.val { stroke: var(--val); }
+  .end, .hdot { fill: var(--surface-1); stroke-width: 2; }
+  .end.train { fill: var(--train); } .end.val { fill: var(--val); }
+  .hdot { stroke-width: 2; }
+  .hdot.train { fill: var(--train); stroke: var(--surface-1); }
+  .hdot.val { fill: var(--val); stroke: var(--surface-1); }
+  .endlabel { font-size: 11.5px; font-weight: 600; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .hover { display: none; }          /* SVG ignores the HTML [hidden] attribute — gate it in CSS */
+  .hover.on { display: inline; }
+  .crosshair { stroke: var(--text-muted); stroke-width: 1; opacity: .45; }
+  .capture { cursor: crosshair; }
+
+  .tip { position: absolute; pointer-events: none; z-index: 5;
+          background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+          padding: 8px 10px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+          box-shadow: 0 4px 14px rgba(0,0,0,.13); font-variant-numeric: tabular-nums; }
+  .tip b { font-weight: 600; }
+  .tip i { width: 9px; height: 3px; border-radius: 2px; display: inline-block; font-style: normal; margin-right: 6px; vertical-align: middle; }
+
+  details { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 16px; }
+  summary { cursor: pointer; font-size: 13.5px; color: var(--text-secondary); }
+  .scroll { overflow-x: auto; max-height: 380px; overflow-y: auto; margin-top: 14px; }
+  table { border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; min-width: 100%; }
+  th, td { text-align: right; padding: 5px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { position: sticky; top: 0; background: var(--surface-1); color: var(--text-muted);
+        font-weight: 500; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; }
+  td:first-child, th:first-child { text-align: left; color: var(--text-secondary); }
+  .note { color: var(--text-muted); font-size: 12.5px; margin-top: 26px; }
+</style>
+
+<div class="viz-root">
+<div class="wrap">
+  <h1>ECA-ResNet50 on ImageNet-100</h1>
+  <p class="sub">50 epochs &middot; 100 classes &middot; 160&thinsp;px crops &middot; mixed precision &middot; batch 192, SGD lr 0.075, step decay every 30 epochs</p>
+  <p class="cmd">main.py -a eca_resnet50 --ksize 3557 --num-classes 100 --amp --image-size 160 -b 192 --lr 0.075 -j 8 --epochs 50</p>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Best val top-1</div><div class="v">80.08%</div><div class="n">epoch 38</div></div>
+    <div class="tile"><div class="k">Best val top-5</div><div class="v">94.82%</div><div class="n">epoch 42</div></div>
+    <div class="tile"><div class="k">Final train&ndash;val gap</div><div class="v">8.5 pts</div><div class="n">top-1, epoch 49</div></div>
+    <div class="tile"><div class="k">Final train loss</div><div class="v">0.464</div><div class="n">from 4.13 at epoch 0</div></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch train"></i>Train</span>
+    <span><i class="swatch val"></i>Validation</span>
+  </div>
+
+  <div class="panels">
+    <figure class="panel">
+  <figcaption class="panel-title">Top-1 accuracy (%)</figcaption>
+  <svg viewBox="0 0 560 320" role="img" aria-label="Top-1 accuracy (%) over 50 epochs, training and validation"
+       data-panel="t1" data-tr="tr1" data-va="va1">
+    <g class="grids"><line class="grid" x1="44.0" y1="282.0" x2="506.0" y2="282.0"/><text class="tick ytick" x="36.0" y="286.0">0</text><line class="grid" x1="44.0" y1="215.5" x2="506.0" y2="215.5"/><text class="tick ytick" x="36.0" y="219.5">25</text><line class="grid" x1="44.0" y1="149.0" x2="506.0" y2="149.0"/><text class="tick ytick" x="36.0" y="153.0">50</text><line class="grid" x1="44.0" y1="82.5" x2="506.0" y2="82.5"/><text class="tick ytick" x="36.0" y="86.5">75</text><line class="grid" x1="44.0" y1="16.0" x2="506.0" y2="16.0"/><text class="tick ytick" x="36.0" y="20.0">100</text></g>
+    <text class="axis-label" x="275" y="318">Epoch</text>
+    <text class="tick xtick" x="44.0" y="304.0">0</text><text class="tick xtick" x="138.3" y="304.0">10</text><text class="tick xtick" x="232.6" y="304.0">20</text><text class="tick xtick" x="326.9" y="304.0">30</text><text class="tick xtick" x="421.1" y="304.0">40</text><text class="tick xtick" x="506.0" y="304.0">49</text>
+    <path class="line train" d="M 44.0 261.5 L 53.4 225.4 L 62.9 199.8 L 72.3 184.5 L 81.7 170.9 L 91.1 160.3 L 100.6 148.7 L 110.0 142.7 L 119.4 135.6 L 128.9 130.3 L 138.3 124.9 L 147.7 120.5 L 157.1 116.7 L 166.6 113.4 L 176.0 110.4 L 185.4 107.9 L 194.9 105.4 L 204.3 103.1 L 213.7 101.4 L 223.1 100.0 L 232.6 98.6 L 242.0 96.6 L 251.4 95.2 L 260.9 94.1 L 270.3 92.5 L 279.7 91.8 L 289.1 90.7 L 298.6 90.0 L 308.0 89.3 L 317.4 88.0 L 326.9 70.7 L 336.3 64.5 L 345.7 62.6 L 355.1 60.7 L 364.6 60.0 L 374.0 58.3 L 383.4 57.4 L 392.9 56.6 L 402.3 55.6 L 411.7 54.9 L 421.1 54.9 L 430.6 53.6 L 440.0 52.9 L 449.4 52.4 L 458.9 51.9 L 468.3 51.2 L 477.7 50.7 L 487.1 50.5 L 496.6 49.9 L 506.0 49.4"/>
+    <path class="line val" d="M 44.0 251.7 L 53.4 211.2 L 62.9 189.6 L 72.3 168.7 L 81.7 164.7 L 91.1 161.7 L 100.6 142.3 L 110.0 132.9 L 119.4 138.3 L 128.9 129.1 L 138.3 131.5 L 147.7 118.9 L 157.1 116.3 L 166.6 116.8 L 176.0 109.0 L 185.4 110.7 L 194.9 109.3 L 204.3 109.6 L 213.7 103.8 L 223.1 105.9 L 232.6 101.4 L 242.0 99.3 L 251.4 108.1 L 260.9 100.7 L 270.3 98.1 L 279.7 107.1 L 289.1 100.4 L 298.6 98.2 L 308.0 100.2 L 317.4 102.3 L 326.9 74.6 L 336.3 72.4 L 345.7 71.8 L 355.1 72.2 L 364.6 70.9 L 374.0 70.8 L 383.4 70.2 L 392.9 70.3 L 402.3 69.0 L 411.7 71.2 L 421.1 70.9 L 430.6 70.4 L 440.0 70.6 L 449.4 70.5 L 458.9 70.3 L 468.3 70.4 L 477.7 71.1 L 487.1 70.7 L 496.6 70.2 L 506.0 71.9"/>
+    <circle class="end train" cx="506.0" cy="49.4" r="4"/><text class="endlabel train" x="515.0" y="53.4">87.5</text><circle class="end val" cx="506.0" cy="71.9" r="4"/><text class="endlabel val" x="515.0" y="75.9">79.0</text>
+    <g class="hover">
+      <line class="crosshair" y1="16" y2="282"/>
+      <circle class="hdot train" r="4"/><circle class="hdot val" r="4"/>
+    </g>
+    <rect class="capture" x="44" y="16" width="462" height="266" fill="transparent"/>
+  </svg>
+  <div class="tip" data-tip="t1" hidden></div>
+</figure>
+    <figure class="panel">
+  <figcaption class="panel-title">Top-5 accuracy (%)</figcaption>
+  <svg viewBox="0 0 560 320" role="img" aria-label="Top-5 accuracy (%) over 50 epochs, training and validation"
+       data-panel="t5" data-tr="tr5" data-va="va5">
+    <g class="grids"><line class="grid" x1="44.0" y1="282.0" x2="506.0" y2="282.0"/><text class="tick ytick" x="36.0" y="286.0">0</text><line class="grid" x1="44.0" y1="215.5" x2="506.0" y2="215.5"/><text class="tick ytick" x="36.0" y="219.5">25</text><line class="grid" x1="44.0" y1="149.0" x2="506.0" y2="149.0"/><text class="tick ytick" x="36.0" y="153.0">50</text><line class="grid" x1="44.0" y1="82.5" x2="506.0" y2="82.5"/><text class="tick ytick" x="36.0" y="86.5">75</text><line class="grid" x1="44.0" y1="16.0" x2="506.0" y2="16.0"/><text class="tick ytick" x="36.0" y="20.0">100</text></g>
+    <text class="axis-label" x="275" y="318">Epoch</text>
+    <text class="tick xtick" x="44.0" y="304.0">0</text><text class="tick xtick" x="138.3" y="304.0">10</text><text class="tick xtick" x="232.6" y="304.0">20</text><text class="tick xtick" x="326.9" y="304.0">30</text><text class="tick xtick" x="421.1" y="304.0">40</text><text class="tick xtick" x="506.0" y="304.0">49</text>
+    <path class="line train" d="M 44.0 220.1 L 53.4 154.6 L 62.9 123.7 L 72.3 108.4 L 81.7 95.4 L 91.1 87.0 L 100.6 77.2 L 110.0 72.2 L 119.4 67.1 L 128.9 63.7 L 138.3 60.4 L 147.7 57.3 L 157.1 55.4 L 166.6 53.3 L 176.0 51.8 L 185.4 50.0 L 194.9 48.8 L 204.3 47.4 L 213.7 46.4 L 223.1 45.6 L 232.6 45.3 L 242.0 44.1 L 251.4 43.3 L 260.9 42.6 L 270.3 42.0 L 279.7 41.8 L 289.1 40.9 L 298.6 40.8 L 308.0 40.4 L 317.4 39.9 L 326.9 32.9 L 336.3 30.7 L 345.7 29.9 L 355.1 29.4 L 364.6 29.0 L 374.0 28.5 L 383.4 28.1 L 392.9 28.0 L 402.3 27.6 L 411.7 27.3 L 421.1 27.4 L 430.6 27.0 L 440.0 26.6 L 449.4 26.6 L 458.9 26.4 L 468.3 26.3 L 477.7 26.2 L 487.1 25.9 L 496.6 25.8 L 506.0 25.7"/>
+    <path class="line val" d="M 44.0 195.1 L 53.4 136.0 L 62.9 110.2 L 72.3 89.0 L 81.7 84.1 L 91.1 85.2 L 100.6 67.3 L 110.0 61.4 L 119.4 65.8 L 128.9 59.5 L 138.3 58.6 L 147.7 52.9 L 157.1 52.5 L 166.6 53.8 L 176.0 48.6 L 185.4 50.4 L 194.9 49.5 L 204.3 49.0 L 213.7 44.3 L 223.1 47.3 L 232.6 43.3 L 242.0 42.9 L 251.4 50.0 L 260.9 45.5 L 270.3 42.1 L 279.7 46.7 L 289.1 43.9 L 298.6 43.5 L 308.0 42.4 L 317.4 47.0 L 326.9 31.9 L 336.3 30.9 L 345.7 31.1 L 355.1 30.6 L 364.6 30.7 L 374.0 30.7 L 383.4 30.8 L 392.9 30.7 L 402.3 30.1 L 411.7 30.8 L 421.1 30.9 L 430.6 30.5 L 440.0 29.8 L 449.4 30.7 L 458.9 30.8 L 468.3 31.5 L 477.7 30.8 L 487.1 31.6 L 496.6 30.5 L 506.0 31.4"/>
+    <circle class="end train" cx="506.0" cy="25.7" r="4"/><text class="endlabel train" x="515.0" y="26.1">96.3</text><circle class="end val" cx="506.0" cy="31.4" r="4"/><text class="endlabel val" x="515.0" y="39.1">94.2</text>
+    <g class="hover">
+      <line class="crosshair" y1="16" y2="282"/>
+      <circle class="hdot train" r="4"/><circle class="hdot val" r="4"/>
+    </g>
+    <rect class="capture" x="44" y="16" width="462" height="266" fill="transparent"/>
+  </svg>
+  <div class="tip" data-tip="t5" hidden></div>
+</figure>
+  </div>
+
+  <details>
+    <summary>Per-epoch values (50 rows)</summary>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Epoch</th><th>Train top-1</th><th>Val top-1</th><th>Train top-5</th><th>Val top-5</th><th>Train loss</th></tr></thead>
+        <tbody><tr><td>0</td><td>7.70</td><td>11.38</td><td>23.27</td><td>32.68</td><td>4.1313</td></tr><tr><td>1</td><td>21.27</td><td>26.60</td><td>47.91</td><td>54.88</td><td>3.2739</td></tr><tr><td>2</td><td>30.90</td><td>34.74</td><td>59.52</td><td>64.60</td><td>2.7959</td></tr><tr><td>3</td><td>36.66</td><td>42.58</td><td>65.27</td><td>72.54</td><td>2.5276</td></tr><tr><td>4</td><td>41.77</td><td>44.08</td><td>70.16</td><td>74.38</td><td>2.2944</td></tr><tr><td>5</td><td>45.74</td><td>45.22</td><td>73.29</td><td>74.00</td><td>2.1314</td></tr><tr><td>6</td><td>50.13</td><td>52.52</td><td>76.98</td><td>80.72</td><td>1.9331</td></tr><tr><td>7</td><td>52.37</td><td>56.04</td><td>78.86</td><td>82.94</td><td>1.8289</td></tr><tr><td>8</td><td>55.05</td><td>54.04</td><td>80.79</td><td>81.28</td><td>1.7141</td></tr><tr><td>9</td><td>57.02</td><td>57.48</td><td>82.07</td><td>83.66</td><td>1.6347</td></tr><tr><td>10</td><td>59.06</td><td>56.58</td><td>83.33</td><td>83.98</td><td>1.5503</td></tr><tr><td>11</td><td>60.73</td><td>61.32</td><td>84.47</td><td>86.14</td><td>1.4823</td></tr><tr><td>12</td><td>62.15</td><td>62.28</td><td>85.17</td><td>86.28</td><td>1.4266</td></tr><tr><td>13</td><td>63.40</td><td>62.12</td><td>85.98</td><td>85.80</td><td>1.3720</td></tr><tr><td>14</td><td>64.53</td><td>65.04</td><td>86.55</td><td>87.76</td><td>1.3322</td></tr><tr><td>15</td><td>65.45</td><td>64.40</td><td>87.20</td><td>87.08</td><td>1.2930</td></tr><tr><td>16</td><td>66.38</td><td>64.92</td><td>87.65</td><td>87.42</td><td>1.2515</td></tr><tr><td>17</td><td>67.27</td><td>64.80</td><td>88.21</td><td>87.60</td><td>1.2195</td></tr><tr><td>18</td><td>67.89</td><td>66.98</td><td>88.55</td><td>89.36</td><td>1.1917</td></tr><tr><td>19</td><td>68.44</td><td>66.22</td><td>88.86</td><td>88.24</td><td>1.1678</td></tr><tr><td>20</td><td>68.95</td><td>67.88</td><td>88.99</td><td>89.74</td><td>1.1475</td></tr><tr><td>21</td><td>69.71</td><td>68.70</td><td>89.45</td><td>89.90</td><td>1.1240</td></tr><tr><td>22</td><td>70.22</td><td>65.36</td><td>89.73</td><td>87.20</td><td>1.1014</td></tr><tr><td>23</td><td>70.63</td><td>68.14</td><td>90.00</td><td>88.90</td><td>1.0794</td></tr><tr><td>24</td><td>71.23</td><td>69.14</td><td>90.24</td><td>90.20</td><td>1.0605</td></tr><tr><td>25</td><td>71.51</td><td>65.74</td><td>90.30</td><td>88.46</td><td>1.0514</td></tr><tr><td>26</td><td>71.92</td><td>68.28</td><td>90.64</td><td>89.52</td><td>1.0336</td></tr><tr><td>27</td><td>72.20</td><td>69.10</td><td>90.68</td><td>89.66</td><td>1.0235</td></tr><tr><td>28</td><td>72.43</td><td>68.36</td><td>90.84</td><td>90.06</td><td>1.0164</td></tr><tr><td>29</td><td>72.94</td><td>67.56</td><td>91.00</td><td>88.36</td><td>0.9992</td></tr><tr><td>30</td><td>79.43</td><td>77.98</td><td>93.64</td><td>94.02</td><td>0.7568</td></tr><tr><td>31</td><td>81.78</td><td>78.80</td><td>94.46</td><td>94.38</td><td>0.6717</td></tr><tr><td>32</td><td>82.48</td><td>79.04</td><td>94.77</td><td>94.32</td><td>0.6416</td></tr><tr><td>33</td><td>83.20</td><td>78.88</td><td>94.96</td><td>94.52</td><td>0.6161</td></tr><tr><td>34</td><td>83.46</td><td>79.36</td><td>95.11</td><td>94.48</td><td>0.6073</td></tr><tr><td>35</td><td>84.10</td><td>79.38</td><td>95.30</td><td>94.48</td><td>0.5832</td></tr><tr><td>36</td><td>84.43</td><td>79.64</td><td>95.44</td><td>94.44</td><td>0.5718</td></tr><tr><td>37</td><td>84.74</td><td>79.60</td><td>95.48</td><td>94.46</td><td>0.5626</td></tr><tr><td>38</td><td>85.12</td><td>80.08</td><td>95.64</td><td>94.70</td><td>0.5486</td></tr><tr><td>39</td><td>85.36</td><td>79.26</td><td>95.75</td><td>94.42</td><td>0.5372</td></tr><tr><td>40</td><td>85.36</td><td>79.36</td><td>95.72</td><td>94.40</td><td>0.5339</td></tr><tr><td>41</td><td>85.86</td><td>79.56</td><td>95.87</td><td>94.54</td><td>0.5201</td></tr><tr><td>42</td><td>86.14</td><td>79.48</td><td>96.00</td><td>94.82</td><td>0.5093</td></tr><tr><td>43</td><td>86.31</td><td>79.50</td><td>96.03</td><td>94.46</td><td>0.5042</td></tr><tr><td>44</td><td>86.52</td><td>79.58</td><td>96.09</td><td>94.44</td><td>0.4959</td></tr><tr><td>45</td><td>86.76</td><td>79.56</td><td>96.11</td><td>94.18</td><td>0.4907</td></tr><tr><td>46</td><td>86.96</td><td>79.28</td><td>96.18</td><td>94.44</td><td>0.4814</td></tr><tr><td>47</td><td>87.03</td><td>79.42</td><td>96.28</td><td>94.14</td><td>0.4753</td></tr><tr><td>48</td><td>87.24</td><td>79.62</td><td>96.31</td><td>94.56</td><td>0.4693</td></tr><tr><td>49</td><td>87.46</td><td>79.00</td><td>96.34</td><td>94.22</td><td>0.4635</td></tr></tbody>
+      </table>
+    </div>
+  </details>
+
+  <p class="note">Parsed from <code>ECANet_output.txt</code>. Train figures are the running epoch averages
+  reported at the last print step; validation figures are the full-set <code>* Prec@1 / Prec@5</code> lines.</p>
+</div>
+</div>
+
+<script>
+const DATA = [{"epoch": 0, "loss": 4.1313, "tr1": 7.7, "tr5": 23.271, "va1": 11.38, "va5": 32.68}, {"epoch": 1, "loss": 3.2739, "tr1": 21.271, "tr5": 47.908, "va1": 26.6, "va5": 54.88}, {"epoch": 2, "loss": 2.7959, "tr1": 30.904, "tr5": 59.517, "va1": 34.74, "va5": 64.6}, {"epoch": 3, "loss": 2.5276, "tr1": 36.659, "tr5": 65.274, "va1": 42.58, "va5": 72.54}, {"epoch": 4, "loss": 2.2944, "tr1": 41.766, "tr5": 70.156, "va1": 44.08, "va5": 74.38}, {"epoch": 5, "loss": 2.1314, "tr1": 45.739, "tr5": 73.294, "va1": 45.22, "va5": 74.0}, {"epoch": 6, "loss": 1.9331, "tr1": 50.127, "tr5": 76.98, "va1": 52.52, "va5": 80.72}, {"epoch": 7, "loss": 1.8289, "tr1": 52.368, "tr5": 78.855, "va1": 56.04, "va5": 82.94}, {"epoch": 8, "loss": 1.7141, "tr1": 55.055, "tr5": 80.792, "va1": 54.04, "va5": 81.28}, {"epoch": 9, "loss": 1.6347, "tr1": 57.023, "tr5": 82.074, "va1": 57.48, "va5": 83.66}, {"epoch": 10, "loss": 1.5503, "tr1": 59.058, "tr5": 83.326, "va1": 56.58, "va5": 83.98}, {"epoch": 11, "loss": 1.4823, "tr1": 60.729, "tr5": 84.471, "va1": 61.32, "va5": 86.14}, {"epoch": 12, "loss": 1.4266, "tr1": 62.146, "tr5": 85.175, "va1": 62.28, "va5": 86.28}, {"epoch": 13, "loss": 1.372, "tr1": 63.395, "tr5": 85.982, "va1": 62.12, "va5": 85.8}, {"epoch": 14, "loss": 1.3322, "tr1": 64.526, "tr5": 86.548, "va1": 65.04, "va5": 87.76}, {"epoch": 15, "loss": 1.293, "tr1": 65.45, "tr5": 87.203, "va1": 64.4, "va5": 87.08}, {"epoch": 16, "loss": 1.2515, "tr1": 66.384, "tr5": 87.654, "va1": 64.92, "va5": 87.42}, {"epoch": 17, "loss": 1.2195, "tr1": 67.269, "tr5": 88.208, "va1": 64.8, "va5": 87.6}, {"epoch": 18, "loss": 1.1917, "tr1": 67.894, "tr5": 88.554, "va1": 66.98, "va5": 89.36}, {"epoch": 19, "loss": 1.1678, "tr1": 68.437, "tr5": 88.857, "va1": 66.22, "va5": 88.24}, {"epoch": 20, "loss": 1.1475, "tr1": 68.953, "tr5": 88.991, "va1": 67.88, "va5": 89.74}, {"epoch": 21, "loss": 1.124, "tr1": 69.713, "tr5": 89.446, "va1": 68.7, "va5": 89.9}, {"epoch": 22, "loss": 1.1014, "tr1": 70.222, "tr5": 89.733, "va1": 65.36, "va5": 87.2}, {"epoch": 23, "loss": 1.0794, "tr1": 70.633, "tr5": 90.004, "va1": 68.14, "va5": 88.9}, {"epoch": 24, "loss": 1.0605, "tr1": 71.229, "tr5": 90.238, "va1": 69.14, "va5": 90.2}, {"epoch": 25, "loss": 1.0514, "tr1": 71.507, "tr5": 90.303, "va1": 65.74, "va5": 88.46}, {"epoch": 26, "loss": 1.0336, "tr1": 71.92, "tr5": 90.645, "va1": 68.28, "va5": 89.52}, {"epoch": 27, "loss": 1.0235, "tr1": 72.199, "tr5": 90.68, "va1": 69.1, "va5": 89.66}, {"epoch": 28, "loss": 1.0164, "tr1": 72.427, "tr5": 90.836, "va1": 68.36, "va5": 90.06}, {"epoch": 29, "loss": 0.9992, "tr1": 72.939, "tr5": 91.0, "va1": 67.56, "va5": 88.36}, {"epoch": 30, "loss": 0.7568, "tr1": 79.431, "tr5": 93.641, "va1": 77.98, "va5": 94.02}, {"epoch": 31, "loss": 0.6717, "tr1": 81.78, "tr5": 94.457, "va1": 78.8, "va5": 94.38}, {"epoch": 32, "loss": 0.6416, "tr1": 82.476, "tr5": 94.767, "va1": 79.04, "va5": 94.32}, {"epoch": 33, "loss": 0.6161, "tr1": 83.199, "tr5": 94.959, "va1": 78.88, "va5": 94.52}, {"epoch": 34, "loss": 0.6073, "tr1": 83.456, "tr5": 95.106, "va1": 79.36, "va5": 94.48}, {"epoch": 35, "loss": 0.5832, "tr1": 84.101, "tr5": 95.299, "va1": 79.38, "va5": 94.48}, {"epoch": 36, "loss": 0.5718, "tr1": 84.434, "tr5": 95.443, "va1": 79.64, "va5": 94.44}, {"epoch": 37, "loss": 0.5626, "tr1": 84.742, "tr5": 95.483, "va1": 79.6, "va5": 94.46}, {"epoch": 38, "loss": 0.5486, "tr1": 85.119, "tr5": 95.645, "va1": 80.08, "va5": 94.7}, {"epoch": 39, "loss": 0.5372, "tr1": 85.364, "tr5": 95.754, "va1": 79.26, "va5": 94.42}, {"epoch": 40, "loss": 0.5339, "tr1": 85.359, "tr5": 95.719, "va1": 79.36, "va5": 94.4}, {"epoch": 41, "loss": 0.5201, "tr1": 85.864, "tr5": 95.871, "va1": 79.56, "va5": 94.54}, {"epoch": 42, "loss": 0.5093, "tr1": 86.138, "tr5": 95.997, "va1": 79.48, "va5": 94.82}, {"epoch": 43, "loss": 0.5042, "tr1": 86.313, "tr5": 96.027, "va1": 79.5, "va5": 94.46}, {"epoch": 44, "loss": 0.4959, "tr1": 86.522, "tr5": 96.088, "va1": 79.58, "va5": 94.44}, {"epoch": 45, "loss": 0.4907, "tr1": 86.763, "tr5": 96.111, "va1": 79.56, "va5": 94.18}, {"epoch": 46, "loss": 0.4814, "tr1": 86.964, "tr5": 96.182, "va1": 79.28, "va5": 94.44}, {"epoch": 47, "loss": 0.4753, "tr1": 87.03, "tr5": 96.278, "va1": 79.42, "va5": 94.14}, {"epoch": 48, "loss": 0.4693, "tr1": 87.243, "tr5": 96.314, "va1": 79.62, "va5": 94.56}, {"epoch": 49, "loss": 0.4635, "tr1": 87.46, "tr5": 96.341, "va1": 79.0, "va5": 94.22}];
+const GEO = { l: 44, t: 16, pw: 462, ph: 266, emax: 49 };
+const NAME = { tr1: 'Train', va1: 'Validation', tr5: 'Train', va5: 'Validation' };
+
+document.querySelectorAll('svg[data-panel]').forEach(svg => {
+  const fig = svg.closest('.panel');
+  const tip = fig.querySelector('.tip');
+  const hov = svg.querySelector('.hover');
+  const cross = svg.querySelector('.crosshair');
+  const dots = { train: svg.querySelector('.hdot.train'), val: svg.querySelector('.hdot.val') };
+  const trk = svg.dataset.tr, vak = svg.dataset.va;
+  const cap = svg.querySelector('.capture');
+
+  const show = ev => {
+    const r = svg.getBoundingClientRect();
+    const vb = svg.viewBox.baseVal;
+    const ux = (ev.clientX - r.left) / r.width * vb.width;
+    let e = Math.round((ux - GEO.l) / GEO.pw * GEO.emax);
+    e = Math.max(0, Math.min(GEO.emax, e));
+    const d = DATA[e];
+    const px = GEO.l + GEO.pw * e / GEO.emax;
+    const py = v => GEO.t + GEO.ph * (1 - v / 100);
+    cross.setAttribute('x1', px); cross.setAttribute('x2', px);
+    dots.train.setAttribute('cx', px); dots.train.setAttribute('cy', py(d[trk]));
+    dots.val.setAttribute('cx', px); dots.val.setAttribute('cy', py(d[vak]));
+    hov.classList.add('on');
+    tip.innerHTML = '<b>Epoch ' + e + '</b><br>'
+      + '<i class="swatch train"></i>' + NAME[trk] + ' <b>' + d[trk].toFixed(2) + '%</b><br>'
+      + '<i class="swatch val"></i>' + NAME[vak] + ' <b>' + d[vak].toFixed(2) + '%</b>';
+    tip.removeAttribute('hidden');
+    const fr = fig.getBoundingClientRect();
+    let lx = ev.clientX - fr.left + 14;
+    if (lx + tip.offsetWidth > fr.width) lx = ev.clientX - fr.left - tip.offsetWidth - 14;
+    tip.style.left = Math.max(0, lx) + 'px';
+    tip.style.top = Math.max(0, ev.clientY - fr.top - tip.offsetHeight - 12) + 'px';
+  };
+  const hide = () => { hov.classList.remove('on'); tip.setAttribute('hidden', ''); };
+
+  cap.addEventListener('pointermove', show);
+  cap.addEventListener('pointerdown', show);
+  cap.addEventListener('pointerleave', hide);
+});
+</script>
