@@ -1,0 +1,5 @@
+python main.py -a eca_resnet50 --ksize 3557 --num-classes 100 \
+    --amp --image-size 160 -b 192 --lr 0.075 -j 8 --epochs 50 \
+    --lr-schedule cosine --warmup-epochs 5 --label-smoothing 0.1 \
+    --no-wd-norm --zero-init-residual \
+    --action in100_tier1 ~/datasets/imagenet-100

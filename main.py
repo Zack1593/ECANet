@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import argparse
+import math
 import os
 import random
 import shutil
@@ -19,8 +20,8 @@ import torchvision.datasets as datasets
 import models
 
 model_names = sorted(name for name in models.__dict__
-    if name.islower() and not name.startswith("__")
-    and callable(models.__dict__[name]))
+                     if name.islower() and not name.startswith("__")
+                     and callable(models.__dict__[name]))
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('data', metavar='DIR',
@@ -28,8 +29,8 @@ parser.add_argument('data', metavar='DIR',
 parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
                     choices=model_names,
                     help='model architecture: ' +
-                        ' | '.join(model_names) +
-                        ' (default: resnet18)')
+                         ' | '.join(model_names) +
+                         ' (default: resnet18)')
 parser.add_argument('-j', '--workers', default=16, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=100, type=int, metavar='N',
@@ -72,9 +73,44 @@ parser.add_argument('--amp', dest='amp', action='store_true',
                     help='train with automatic mixed precision')
 parser.add_argument('--action', default='', type=str,
                     help='other information.')
-                    
+# --- training recipe options; defaults reproduce the original behaviour ---
+parser.add_argument('--lr-schedule', default='step', choices=['step', 'cosine'],
+                    help='learning rate schedule (default: step, x0.1 every 30 epochs)')
+parser.add_argument('--warmup-epochs', default=0, type=float, metavar='N',
+                    help='linear LR warmup length in epochs (default: 0, no warmup)')
+parser.add_argument('--label-smoothing', default=0.0, type=float, metavar='S',
+                    help='label smoothing factor (default: 0.0, plain cross-entropy)')
+parser.add_argument('--no-wd-norm', dest='no_wd_norm', action='store_true',
+                    help='exclude norm and bias parameters from weight decay')
+parser.add_argument('--zero-init-residual', dest='zero_init_residual', action='store_true',
+                    help='zero-init the last BN gamma in each residual block')
 
 best_prec1 = 0
+
+
+def build_param_groups(model, weight_decay, no_wd_norm):
+    """Split parameters so norm gammas/betas and biases can skip weight decay.
+
+    Decaying 1-D parameters shrinks BatchNorm's scale and shift toward zero, which
+    costs accuracy for no regularisation benefit. Returns a plain parameter list when
+    the split is disabled, so the optimizer state matches the original recipe exactly.
+    """
+    if not no_wd_norm:
+        return model.parameters()
+
+    decay, no_decay = [], []
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        # every norm weight/bias and every conv/linear bias is 1-D
+        if param.ndim <= 1:
+            no_decay.append(param)
+        else:
+            decay.append(param)
+    print("=> weight decay on {} tensors, none on {} norm/bias tensors".format(
+        len(decay), len(no_decay)))
+    return [{'params': decay, 'weight_decay': weight_decay},
+            {'params': no_decay, 'weight_decay': 0.0}]
 
 
 def main():
@@ -112,6 +148,21 @@ def main():
         else:
             model = models.__dict__[args.arch](k_size=args.ksize, num_classes=args.num_classes)
 
+    if args.zero_init_residual:
+        # start every residual branch at zero so each block begins as the identity.
+        # bn3 is the last norm in a bottleneck, bn2 in a basic block; checking bn3
+        # first keeps bottlenecks out of the basic-block branch. Duck-typed so this
+        # also covers torchvision's blocks when training a non-ECA baseline.
+        zeroed = 0
+        for m in model.modules():
+            if hasattr(m, 'bn3'):
+                nn.init.constant_(m.bn3.weight, 0)
+                zeroed += 1
+            elif hasattr(m, 'bn2') and hasattr(m, 'conv2'):
+                nn.init.constant_(m.bn2.weight, 0)
+                zeroed += 1
+        print("=> zero-initialised the last BN gamma in {} residual blocks".format(zeroed))
+
     if args.gpu is not None:
         model = model.cuda(args.gpu)
     elif args.distributed:
@@ -126,15 +177,16 @@ def main():
             model = torch.nn.DataParallel(model).cuda()
 
     print(model)
-    
+
     # get the number of models parameters
     print('Number of models parameters: {}'.format(
         sum([p.data.nelement() for p in model.parameters()])))
 
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().cuda(args.gpu)
+    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing).cuda(args.gpu)
 
-    optimizer = torch.optim.SGD(model.parameters(), args.lr,
+    optimizer = torch.optim.SGD(build_param_groups(model, args.weight_decay, args.no_wd_norm),
+                                args.lr,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
 
@@ -197,12 +249,12 @@ def main():
 
     if args.evaluate:
         m = time.time()
-        _, _ =validate(val_loader, model, criterion)
+        _, _ = validate(val_loader, model, criterion)
         n = time.time()
-        print((n-m)/3600)
+        print((n - m) / 3600)
         return
-    
-    directory = "runs/%s/"%(args.arch + '_' + args.action)
+
+    directory = "runs/%s/" % (args.arch + '_' + args.action)
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -216,7 +268,7 @@ def main():
         start_time = time.time()
         if args.distributed:
             train_sampler.set_epoch(epoch)
-        adjust_learning_rate(optimizer, epoch)
+        # the LR is now set per iteration inside train(), for smooth warmup/cosine
 
         # train for one epoch
         # train(train_loader, model, criterion, optimizer, epoch)
@@ -239,9 +291,9 @@ def main():
             'arch': args.arch,
             'state_dict': model.state_dict(),
             'best_prec1': best_prec1,
-            'optimizer' : optimizer.state_dict(),
+            'optimizer': optimizer.state_dict(),
         }, is_best)
-        
+
         # 将Loss,train_prec1,train_prec5,val_prec1,val_prec5用.txt的文件存起来
         data_save(directory + 'Loss_plot.txt', Loss_plot)
         data_save(directory + 'train_prec1.txt', train_prec1_plot)
@@ -270,6 +322,8 @@ def train(train_loader, model, criterion, optimizer, epoch, scaler):
     for i, (input, target) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
+
+        lr = adjust_learning_rate(optimizer, epoch, i, len(train_loader))
 
         if args.gpu is not None:
             input = input.cuda(args.gpu, non_blocking=True)
@@ -301,11 +355,12 @@ def train(train_loader, model, criterion, optimizer, epoch, scaler):
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-     
+
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                   epoch, i, len(train_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses, top1=top1, top5=top5))
+                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})\t'
+                  'LR {lr:.5f}'.format(
+                epoch, i, len(train_loader), batch_time=batch_time,
+                data_time=data_time, loss=losses, top1=top1, top5=top5, lr=lr))
 
     return losses.avg, top1.avg, top5.avg
 
@@ -347,8 +402,8 @@ def validate(val_loader, model, criterion):
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                       'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                       'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                       i, len(val_loader), batch_time=batch_time, loss=losses,
-                       top1=top1, top5=top5))
+                    i, len(val_loader), batch_time=batch_time, loss=losses,
+                    top1=top1, top5=top5))
 
         print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))
@@ -357,8 +412,8 @@ def validate(val_loader, model, criterion):
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    directory = "runs/%s/"%(args.arch + '_' + args.action)
-    
+    directory = "runs/%s/" % (args.arch + '_' + args.action)
+
     filename = directory + filename
     torch.save(state, filename)
     if is_best:
@@ -367,6 +422,7 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self):
         self.reset()
 
@@ -383,11 +439,27 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 
-def adjust_learning_rate(optimizer, epoch):
-    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = args.lr * (0.1 ** (epoch // 30))
+def adjust_learning_rate(optimizer, epoch, step=0, steps_per_epoch=1):
+    """Set the LR for this iteration: linear warmup, then step or cosine decay.
+
+    Called once per iteration rather than once per epoch, so both the warmup ramp and
+    the cosine curve are smooth instead of piecewise-constant. `t` is the fractional
+    epoch. Returns the LR it applied, for logging.
+    """
+    t = epoch + float(step) / max(1, steps_per_epoch)
+
+    if args.warmup_epochs > 0 and t < args.warmup_epochs:
+        # ramp from ~0 to args.lr over the warmup window
+        lr = args.lr * (t + 1e-8) / args.warmup_epochs
+    elif args.lr_schedule == 'cosine':
+        progress = (t - args.warmup_epochs) / max(1e-8, args.epochs - args.warmup_epochs)
+        lr = args.lr * 0.5 * (1.0 + math.cos(math.pi * min(1.0, progress)))
+    else:
+        lr = args.lr * (0.1 ** (int(t) // 30))
+
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
+    return lr
 
 
 def accuracy(output, target, topk=(1,)):
