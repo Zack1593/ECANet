@@ -1,0 +1,4 @@
+trial,status,score,best_top1,best_epoch,final_top1,final_top5,epochs_done,lr,weight_decay,ksize,batch_size,image_size,epochs,minutes,log
+tune_00,ok,73.128,74.58,34,74.58,92.96,35,0.19686,0.000194,3557,192,128,35,63.4,tuning/logs/tune_00.log
+tune_01,ok,75.064,75.52,34,75.52,92.56,35,0.06247,2.75e-05,3557,192,128,35,62.6,tuning/logs/tune_01.log
+tune_02,ok,75.744,75.98,34,75.98,93.08,35,0.07986,4.87e-05,3557,192,128,35,62.3,tuning/logs/tune_02.log

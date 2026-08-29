@@ -19,8 +19,8 @@ import torchvision.datasets as datasets
 import models
 
 model_names = sorted(name for name in models.__dict__
-    if name.islower() and not name.startswith("__")
-    and callable(models.__dict__[name]))
+                     if name.islower() and not name.startswith("__")
+                     and callable(models.__dict__[name]))
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('data', metavar='DIR',
@@ -28,8 +28,8 @@ parser.add_argument('data', metavar='DIR',
 parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
                     choices=model_names,
                     help='model architecture: ' +
-                        ' | '.join(model_names) +
-                        ' (default: resnet18)')
+                         ' | '.join(model_names) +
+                         ' (default: resnet18)')
 parser.add_argument('-j', '--workers', default=16, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=100, type=int, metavar='N',
@@ -72,7 +72,6 @@ parser.add_argument('--amp', dest='amp', action='store_true',
                     help='train with automatic mixed precision')
 parser.add_argument('--action', default='', type=str,
                     help='other information.')
-                    
 
 best_prec1 = 0
 
@@ -126,7 +125,7 @@ def main():
             model = torch.nn.DataParallel(model).cuda()
 
     print(model)
-    
+
     # get the number of models parameters
     print('Number of models parameters: {}'.format(
         sum([p.data.nelement() for p in model.parameters()])))
@@ -197,12 +196,12 @@ def main():
 
     if args.evaluate:
         m = time.time()
-        _, _ =validate(val_loader, model, criterion)
+        _, _ = validate(val_loader, model, criterion)
         n = time.time()
-        print((n-m)/3600)
+        print((n - m) / 3600)
         return
-    
-    directory = "runs/%s/"%(args.arch + '_' + args.action)
+
+    directory = "runs/%s/" % (args.arch + '_' + args.action)
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -239,9 +238,9 @@ def main():
             'arch': args.arch,
             'state_dict': model.state_dict(),
             'best_prec1': best_prec1,
-            'optimizer' : optimizer.state_dict(),
+            'optimizer': optimizer.state_dict(),
         }, is_best)
-        
+
         # 将Loss,train_prec1,train_prec5,val_prec1,val_prec5用.txt的文件存起来
         data_save(directory + 'Loss_plot.txt', Loss_plot)
         data_save(directory + 'train_prec1.txt', train_prec1_plot)
@@ -301,11 +300,11 @@ def train(train_loader, model, criterion, optimizer, epoch, scaler):
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-     
+
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                   epoch, i, len(train_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses, top1=top1, top5=top5))
+                epoch, i, len(train_loader), batch_time=batch_time,
+                data_time=data_time, loss=losses, top1=top1, top5=top5))
 
     return losses.avg, top1.avg, top5.avg
 
@@ -347,8 +346,8 @@ def validate(val_loader, model, criterion):
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                       'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                       'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                       i, len(val_loader), batch_time=batch_time, loss=losses,
-                       top1=top1, top5=top5))
+                    i, len(val_loader), batch_time=batch_time, loss=losses,
+                    top1=top1, top5=top5))
 
         print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))
@@ -357,8 +356,8 @@ def validate(val_loader, model, criterion):
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    directory = "runs/%s/"%(args.arch + '_' + args.action)
-    
+    directory = "runs/%s/" % (args.arch + '_' + args.action)
+
     filename = directory + filename
     torch.save(state, filename)
     if is_best:
@@ -367,6 +366,7 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self):
         self.reset()
 

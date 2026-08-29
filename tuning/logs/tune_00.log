@@ -1,0 +1,578 @@
+$ /home/zack/Codes/ECANet/.venv/bin/python3 main.py --amp -a eca_resnet50 --ksize 3557 --num-classes 100 --image-size 128 -b 192 --lr 0.19686 --weight-decay 0.000194 -j 8 --epochs 35 --print-freq 200 --action tune_00 /home/zack/datasets/imagenet-100
+
+=> creating model 'eca_resnet50'
+Constructing eca_resnet50......
+DataParallel(
+  (module): ResNet(
+    (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+    (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+    (relu): ReLU(inplace=True)
+    (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+    (layer1): Sequential(
+      (0): ECABottleneck(
+        (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(3,), stride=(1,), padding=(1,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+        (downsample): Sequential(
+          (0): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        )
+      )
+      (1): ECABottleneck(
+        (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(3,), stride=(1,), padding=(1,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+      (2): ECABottleneck(
+        (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(3,), stride=(1,), padding=(1,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+    )
+    (layer2): Sequential(
+      (0): ECABottleneck(
+        (conv1): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+        (downsample): Sequential(
+          (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+          (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        )
+      )
+      (1): ECABottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+      (2): ECABottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+      (3): ECABottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+    )
+    (layer3): Sequential(
+      (0): ECABottleneck(
+        (conv1): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+        (downsample): Sequential(
+          (0): Conv2d(512, 1024, kernel_size=(1, 1), stride=(2, 2), bias=False)
+          (1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        )
+      )
+      (1): ECABottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+      (2): ECABottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+      (3): ECABottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+      (4): ECABottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+      (5): ECABottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(5,), stride=(1,), padding=(2,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+    )
+    (layer4): Sequential(
+      (0): ECABottleneck(
+        (conv1): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(7,), stride=(1,), padding=(3,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+        (downsample): Sequential(
+          (0): Conv2d(1024, 2048, kernel_size=(1, 1), stride=(2, 2), bias=False)
+          (1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        )
+      )
+      (1): ECABottleneck(
+        (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(7,), stride=(1,), padding=(3,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+      (2): ECABottleneck(
+        (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (eca): eca_layer(
+          (avg_pool): AdaptiveAvgPool2d(output_size=1)
+          (conv): Conv1d(1, 1, kernel_size=(7,), stride=(1,), padding=(3,), bias=False)
+          (sigmoid): Sigmoid()
+        )
+      )
+    )
+    (avgpool): AdaptiveAvgPool2d(output_size=1)
+    (fc): Linear(in_features=2048, out_features=100, bias=True)
+  )
+)
+Number of models parameters: 23713012
+Epoch: [0][0/660]	Time 4.170 (4.170)	Data 0.434 (0.434)	Loss 4.6934 (4.6934)	Prec@1 1.562 (1.562)	Prec@5 5.208 (5.208)
+Epoch: [0][200/660]	Time 0.172 (0.195)	Data 0.000 (0.002)	Loss 4.6058 (4.7332)	Prec@1 2.083 (1.228)	Prec@5 6.771 (5.662)
+Epoch: [0][400/660]	Time 0.170 (0.191)	Data 0.000 (0.001)	Loss 4.5264 (4.6633)	Prec@1 1.562 (1.374)	Prec@5 7.292 (6.242)
+Epoch: [0][600/660]	Time 0.174 (0.188)	Data 0.000 (0.001)	Loss 4.4024 (4.5981)	Prec@1 3.125 (1.756)	Prec@5 13.021 (7.898)
+Test: [0/27]	Time 0.545 (0.545)	Loss 4.4095 (4.4095)	Prec@1 0.521 (0.521)	Prec@5 6.250 (6.250)
+ * Prec@1 3.120 Prec@5 13.620
+--------------------------------------------------------------------------------
+0.036034256882137725
+--------------------------------------------------------------------------------
+Epoch: [1][0/660]	Time 0.628 (0.628)	Data 0.449 (0.449)	Loss 4.3257 (4.3257)	Prec@1 3.125 (3.125)	Prec@5 19.271 (19.271)
+Epoch: [1][200/660]	Time 0.171 (0.184)	Data 0.000 (0.002)	Loss 4.2809 (4.3570)	Prec@1 5.208 (3.861)	Prec@5 17.708 (15.122)
+Epoch: [1][400/660]	Time 0.184 (0.180)	Data 0.000 (0.001)	Loss 4.1549 (4.2892)	Prec@1 5.208 (4.555)	Prec@5 21.354 (16.991)
+Epoch: [1][600/660]	Time 0.171 (0.178)	Data 0.000 (0.001)	Loss 3.9719 (4.2079)	Prec@1 6.771 (5.671)	Prec@5 26.562 (19.642)
+Test: [0/27]	Time 0.536 (0.536)	Loss 3.6133 (3.6133)	Prec@1 9.375 (9.375)	Prec@5 41.667 (41.667)
+ * Prec@1 10.220 Prec@5 30.400
+--------------------------------------------------------------------------------
+0.033346361252996656
+--------------------------------------------------------------------------------
+Epoch: [2][0/660]	Time 0.624 (0.624)	Data 0.442 (0.442)	Loss 3.8080 (3.8080)	Prec@1 10.417 (10.417)	Prec@5 33.854 (33.854)
+Epoch: [2][200/660]	Time 0.174 (0.175)	Data 0.000 (0.002)	Loss 3.5228 (3.7671)	Prec@1 14.062 (11.438)	Prec@5 41.667 (33.504)
+Epoch: [2][400/660]	Time 0.172 (0.174)	Data 0.000 (0.001)	Loss 3.5541 (3.6689)	Prec@1 13.021 (13.162)	Prec@5 42.188 (36.600)
+Epoch: [2][600/660]	Time 0.173 (0.174)	Data 0.000 (0.001)	Loss 3.3821 (3.5896)	Prec@1 18.750 (14.674)	Prec@5 47.917 (38.947)
+Test: [0/27]	Time 0.500 (0.500)	Loss 3.3932 (3.3932)	Prec@1 17.188 (17.188)	Prec@5 35.417 (35.417)
+ * Prec@1 18.800 Prec@5 44.580
+--------------------------------------------------------------------------------
+0.032508877648247614
+--------------------------------------------------------------------------------
+Epoch: [3][0/660]	Time 0.603 (0.603)	Data 0.427 (0.427)	Loss 3.3318 (3.3318)	Prec@1 19.271 (19.271)	Prec@5 45.833 (45.833)
+Epoch: [3][200/660]	Time 0.169 (0.174)	Data 0.000 (0.002)	Loss 3.3039 (3.6016)	Prec@1 20.833 (15.705)	Prec@5 49.479 (39.329)
+Epoch: [3][400/660]	Time 0.171 (0.173)	Data 0.000 (0.001)	Loss 3.2466 (3.4451)	Prec@1 25.521 (18.486)	Prec@5 48.958 (43.495)
+Epoch: [3][600/660]	Time 0.172 (0.172)	Data 0.000 (0.001)	Loss 3.1269 (3.3379)	Prec@1 25.000 (20.414)	Prec@5 50.000 (46.252)
+Test: [0/27]	Time 0.582 (0.582)	Loss 2.2471 (2.2471)	Prec@1 44.271 (44.271)	Prec@5 68.750 (68.750)
+ * Prec@1 26.060 Prec@5 55.080
+--------------------------------------------------------------------------------
+0.032298413713773094
+--------------------------------------------------------------------------------
+Epoch: [4][0/660]	Time 0.603 (0.603)	Data 0.422 (0.422)	Loss 3.0130 (3.0130)	Prec@1 24.479 (24.479)	Prec@5 50.521 (50.521)
+Epoch: [4][200/660]	Time 0.173 (0.175)	Data 0.000 (0.002)	Loss 2.8756 (3.0349)	Prec@1 27.083 (26.208)	Prec@5 55.729 (53.996)
+Epoch: [4][400/660]	Time 0.170 (0.174)	Data 0.000 (0.001)	Loss 2.8725 (2.9774)	Prec@1 31.250 (27.399)	Prec@5 58.333 (55.277)
+Epoch: [4][600/660]	Time 0.172 (0.173)	Data 0.000 (0.001)	Loss 2.7076 (2.9276)	Prec@1 32.812 (28.359)	Prec@5 64.583 (56.521)
+Test: [0/27]	Time 0.460 (0.460)	Loss 2.4351 (2.4351)	Prec@1 42.708 (42.708)	Prec@5 61.458 (61.458)
+ * Prec@1 27.420 Prec@5 56.300
+--------------------------------------------------------------------------------
+0.03238000704182519
+--------------------------------------------------------------------------------
+Epoch: [5][0/660]	Time 0.703 (0.703)	Data 0.526 (0.526)	Loss 2.6686 (2.6686)	Prec@1 35.938 (35.938)	Prec@5 61.458 (61.458)
+Epoch: [5][200/660]	Time 0.173 (0.174)	Data 0.000 (0.003)	Loss 3.1995 (2.8881)	Prec@1 23.438 (29.654)	Prec@5 50.521 (57.141)
+Epoch: [5][400/660]	Time 0.174 (0.173)	Data 0.000 (0.001)	Loss 2.9229 (2.8768)	Prec@1 29.687 (29.691)	Prec@5 59.375 (57.620)
+Epoch: [5][600/660]	Time 0.172 (0.173)	Data 0.000 (0.001)	Loss 2.5871 (2.8152)	Prec@1 33.854 (30.863)	Prec@5 61.458 (59.081)
+Test: [0/27]	Time 0.485 (0.485)	Loss 2.8439 (2.8439)	Prec@1 34.375 (34.375)	Prec@5 54.167 (54.167)
+ * Prec@1 29.380 Prec@5 58.740
+--------------------------------------------------------------------------------
+0.03242987950642904
+--------------------------------------------------------------------------------
+Epoch: [6][0/660]	Time 0.554 (0.554)	Data 0.376 (0.376)	Loss 2.5764 (2.5764)	Prec@1 35.938 (35.938)	Prec@5 66.667 (66.667)
+Epoch: [6][200/660]	Time 0.171 (0.175)	Data 0.000 (0.002)	Loss 2.6689 (2.5737)	Prec@1 33.854 (35.468)	Prec@5 65.104 (64.578)
+Epoch: [6][400/660]	Time 0.175 (0.174)	Data 0.000 (0.001)	Loss 2.5133 (2.5481)	Prec@1 34.896 (36.193)	Prec@5 63.542 (65.121)
+Epoch: [6][600/660]	Time 0.175 (0.173)	Data 0.000 (0.001)	Loss 2.5161 (2.5207)	Prec@1 36.458 (36.769)	Prec@5 69.271 (65.687)
+Test: [0/27]	Time 0.485 (0.485)	Loss 1.6529 (1.6529)	Prec@1 55.208 (55.208)	Prec@5 82.292 (82.292)
+ * Prec@1 34.500 Prec@5 65.720
+--------------------------------------------------------------------------------
+0.03246112002266778
+--------------------------------------------------------------------------------
+Epoch: [7][0/660]	Time 0.651 (0.651)	Data 0.474 (0.474)	Loss 2.3952 (2.3952)	Prec@1 42.188 (42.188)	Prec@5 69.792 (69.792)
+Epoch: [7][200/660]	Time 0.157 (0.172)	Data 0.000 (0.003)	Loss 2.2926 (2.3815)	Prec@1 45.312 (39.721)	Prec@5 67.188 (68.579)
+Epoch: [7][400/660]	Time 0.157 (0.167)	Data 0.000 (0.001)	Loss 2.3941 (2.3685)	Prec@1 41.146 (40.229)	Prec@5 65.104 (68.832)
+Epoch: [7][600/660]	Time 0.157 (0.164)	Data 0.000 (0.001)	Loss 2.4327 (2.3540)	Prec@1 37.500 (40.528)	Prec@5 64.062 (69.088)
+Test: [0/27]	Time 0.564 (0.564)	Loss 1.8449 (1.8449)	Prec@1 47.917 (47.917)	Prec@5 79.167 (79.167)
+ * Prec@1 38.500 Prec@5 67.980
+--------------------------------------------------------------------------------
+0.03066159890757667
+--------------------------------------------------------------------------------
+Epoch: [8][0/660]	Time 0.653 (0.653)	Data 0.490 (0.490)	Loss 2.1315 (2.1315)	Prec@1 44.792 (44.792)	Prec@5 74.479 (74.479)
+Epoch: [8][200/660]	Time 0.160 (0.163)	Data 0.000 (0.003)	Loss 2.2831 (2.2516)	Prec@1 44.271 (42.903)	Prec@5 71.875 (71.235)
+Epoch: [8][400/660]	Time 0.157 (0.160)	Data 0.000 (0.001)	Loss 2.3347 (2.2524)	Prec@1 37.500 (42.725)	Prec@5 69.271 (71.271)
+Epoch: [8][600/660]	Time 0.158 (0.159)	Data 0.000 (0.001)	Loss 2.1768 (2.2369)	Prec@1 44.792 (43.098)	Prec@5 73.958 (71.547)
+Test: [0/27]	Time 0.433 (0.433)	Loss 3.0493 (3.0493)	Prec@1 28.125 (28.125)	Prec@5 53.646 (53.646)
+ * Prec@1 33.440 Prec@5 62.560
+--------------------------------------------------------------------------------
+0.029744882980982462
+--------------------------------------------------------------------------------
+Epoch: [9][0/660]	Time 0.523 (0.523)	Data 0.363 (0.363)	Loss 2.2611 (2.2611)	Prec@1 45.312 (45.312)	Prec@5 70.833 (70.833)
+Epoch: [9][200/660]	Time 0.157 (0.159)	Data 0.000 (0.002)	Loss 2.1008 (2.1561)	Prec@1 48.958 (44.996)	Prec@5 74.479 (72.834)
+Epoch: [9][400/660]	Time 0.157 (0.158)	Data 0.000 (0.001)	Loss 2.2359 (2.1521)	Prec@1 42.708 (44.932)	Prec@5 70.833 (72.958)
+Epoch: [9][600/660]	Time 0.157 (0.158)	Data 0.000 (0.001)	Loss 1.8852 (2.1447)	Prec@1 48.958 (45.142)	Prec@5 76.042 (73.112)
+Test: [0/27]	Time 0.550 (0.550)	Loss 1.6940 (1.6940)	Prec@1 52.083 (52.083)	Prec@5 82.812 (82.812)
+ * Prec@1 37.060 Prec@5 65.720
+--------------------------------------------------------------------------------
+0.029548062947061325
+--------------------------------------------------------------------------------
+Epoch: [10][0/660]	Time 0.588 (0.588)	Data 0.426 (0.426)	Loss 2.0053 (2.0053)	Prec@1 44.792 (44.792)	Prec@5 73.958 (73.958)
+Epoch: [10][200/660]	Time 0.157 (0.159)	Data 0.000 (0.002)	Loss 2.0579 (2.0845)	Prec@1 49.479 (46.499)	Prec@5 73.958 (74.230)
+Epoch: [10][400/660]	Time 0.157 (0.158)	Data 0.000 (0.001)	Loss 2.0474 (2.0879)	Prec@1 40.625 (46.497)	Prec@5 75.521 (74.158)
+Epoch: [10][600/660]	Time 0.157 (0.158)	Data 0.000 (0.001)	Loss 2.1125 (2.0828)	Prec@1 45.312 (46.616)	Prec@5 77.604 (74.315)
+Test: [0/27]	Time 0.465 (0.465)	Loss 2.1763 (2.1763)	Prec@1 41.667 (41.667)	Prec@5 78.125 (78.125)
+ * Prec@1 39.840 Prec@5 69.720
+--------------------------------------------------------------------------------
+0.029568183024724325
+--------------------------------------------------------------------------------
+Epoch: [11][0/660]	Time 0.552 (0.552)	Data 0.391 (0.391)	Loss 2.1009 (2.1009)	Prec@1 41.667 (41.667)	Prec@5 76.562 (76.562)
+Epoch: [11][200/660]	Time 0.157 (0.159)	Data 0.000 (0.002)	Loss 1.8814 (2.0298)	Prec@1 52.083 (47.756)	Prec@5 75.000 (75.231)
+Epoch: [11][400/660]	Time 0.157 (0.158)	Data 0.000 (0.001)	Loss 2.1109 (2.0203)	Prec@1 46.354 (47.950)	Prec@5 70.833 (75.516)
+Epoch: [11][600/660]	Time 0.157 (0.158)	Data 0.000 (0.001)	Loss 2.0170 (2.0183)	Prec@1 50.000 (48.070)	Prec@5 76.562 (75.574)
+Test: [0/27]	Time 0.459 (0.459)	Loss 1.6605 (1.6605)	Prec@1 57.292 (57.292)	Prec@5 83.333 (83.333)
+ * Prec@1 42.840 Prec@5 72.500
+--------------------------------------------------------------------------------
+0.029557057817776997
+--------------------------------------------------------------------------------
+Epoch: [12][0/660]	Time 0.577 (0.577)	Data 0.415 (0.415)	Loss 2.1648 (2.1648)	Prec@1 48.958 (48.958)	Prec@5 72.396 (72.396)
+Epoch: [12][200/660]	Time 0.157 (0.159)	Data 0.000 (0.002)	Loss 1.9910 (1.9629)	Prec@1 50.521 (49.562)	Prec@5 73.438 (76.677)
+Epoch: [12][400/660]	Time 0.158 (0.158)	Data 0.000 (0.001)	Loss 2.0159 (1.9619)	Prec@1 49.479 (49.649)	Prec@5 76.042 (76.747)
+Epoch: [12][600/660]	Time 0.158 (0.158)	Data 0.000 (0.001)	Loss 1.7819 (1.9626)	Prec@1 50.521 (49.563)	Prec@5 82.812 (76.738)
+Test: [0/27]	Time 0.461 (0.461)	Loss 1.3634 (1.3634)	Prec@1 63.021 (63.021)	Prec@5 87.500 (87.500)
+ * Prec@1 47.160 Prec@5 76.640
+--------------------------------------------------------------------------------
+0.02957794573571947
+--------------------------------------------------------------------------------
+Epoch: [13][0/660]	Time 0.647 (0.647)	Data 0.485 (0.485)	Loss 1.9175 (1.9175)	Prec@1 48.438 (48.438)	Prec@5 75.521 (75.521)
+Epoch: [13][200/660]	Time 0.157 (0.160)	Data 0.000 (0.003)	Loss 1.7991 (1.9349)	Prec@1 51.042 (50.231)	Prec@5 80.208 (77.029)
+Epoch: [13][400/660]	Time 0.158 (0.158)	Data 0.000 (0.001)	Loss 2.1292 (1.9300)	Prec@1 41.146 (50.069)	Prec@5 73.958 (77.190)
+Epoch: [13][600/660]	Time 0.157 (0.158)	Data 0.000 (0.001)	Loss 2.1161 (1.9223)	Prec@1 46.875 (50.244)	Prec@5 75.000 (77.388)
+Test: [0/27]	Time 0.458 (0.458)	Loss 1.7494 (1.7494)	Prec@1 49.479 (49.479)	Prec@5 82.812 (82.812)
+ * Prec@1 44.220 Prec@5 71.640
+--------------------------------------------------------------------------------
+0.029623845484521655
+--------------------------------------------------------------------------------
+Epoch: [14][0/660]	Time 0.606 (0.606)	Data 0.441 (0.441)	Loss 1.9481 (1.9481)	Prec@1 47.917 (47.917)	Prec@5 77.083 (77.083)
+Epoch: [14][200/660]	Time 0.156 (0.159)	Data 0.000 (0.002)	Loss 2.1138 (1.8907)	Prec@1 49.479 (51.417)	Prec@5 77.083 (78.052)
+Epoch: [14][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 2.0623 (1.8801)	Prec@1 46.875 (51.516)	Prec@5 74.479 (78.194)
+Epoch: [14][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.9611 (1.8831)	Prec@1 47.396 (51.377)	Prec@5 78.125 (78.045)
+Test: [0/27]	Time 0.452 (0.452)	Loss 1.6305 (1.6305)	Prec@1 55.208 (55.208)	Prec@5 85.417 (85.417)
+ * Prec@1 52.520 Prec@5 81.220
+--------------------------------------------------------------------------------
+0.029359563324186537
+--------------------------------------------------------------------------------
+Epoch: [15][0/660]	Time 0.576 (0.576)	Data 0.410 (0.410)	Loss 1.6255 (1.6255)	Prec@1 54.687 (54.687)	Prec@5 83.854 (83.854)
+Epoch: [15][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.7989 (1.8437)	Prec@1 50.000 (52.076)	Prec@5 80.729 (78.680)
+Epoch: [15][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.9112 (1.8407)	Prec@1 54.167 (52.300)	Prec@5 76.562 (78.619)
+Epoch: [15][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.8894 (1.8450)	Prec@1 48.958 (52.238)	Prec@5 76.562 (78.606)
+Test: [0/27]	Time 0.488 (0.488)	Loss 1.9310 (1.9310)	Prec@1 44.792 (44.792)	Prec@5 82.812 (82.812)
+ * Prec@1 51.080 Prec@5 79.080
+--------------------------------------------------------------------------------
+0.029292044440905253
+--------------------------------------------------------------------------------
+Epoch: [16][0/660]	Time 0.524 (0.524)	Data 0.354 (0.354)	Loss 1.5465 (1.5465)	Prec@1 58.333 (58.333)	Prec@5 85.417 (85.417)
+Epoch: [16][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.9112 (1.8171)	Prec@1 51.042 (52.941)	Prec@5 78.646 (79.089)
+Epoch: [16][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.8407 (1.8277)	Prec@1 52.083 (52.757)	Prec@5 80.729 (78.874)
+Epoch: [16][600/660]	Time 0.156 (0.156)	Data 0.000 (0.001)	Loss 2.0127 (1.8223)	Prec@1 48.958 (52.881)	Prec@5 77.604 (79.038)
+Test: [0/27]	Time 0.502 (0.502)	Loss 1.8272 (1.8272)	Prec@1 47.917 (47.917)	Prec@5 82.812 (82.812)
+ * Prec@1 50.100 Prec@5 77.800
+--------------------------------------------------------------------------------
+0.02929166634877523
+--------------------------------------------------------------------------------
+Epoch: [17][0/660]	Time 0.548 (0.548)	Data 0.383 (0.383)	Loss 1.6063 (1.6063)	Prec@1 57.292 (57.292)	Prec@5 81.250 (81.250)
+Epoch: [17][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.5681 (1.7911)	Prec@1 56.250 (53.516)	Prec@5 82.812 (79.312)
+Epoch: [17][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.8703 (1.7870)	Prec@1 48.438 (53.619)	Prec@5 73.958 (79.467)
+Epoch: [17][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.7781 (1.7926)	Prec@1 54.687 (53.481)	Prec@5 79.167 (79.317)
+Test: [0/27]	Time 0.439 (0.439)	Loss 1.6408 (1.6408)	Prec@1 54.687 (54.687)	Prec@5 84.896 (84.896)
+ * Prec@1 49.200 Prec@5 77.120
+--------------------------------------------------------------------------------
+0.029281545612547134
+--------------------------------------------------------------------------------
+Epoch: [18][0/660]	Time 0.653 (0.653)	Data 0.486 (0.486)	Loss 1.8159 (1.8159)	Prec@1 57.292 (57.292)	Prec@5 79.688 (79.688)
+Epoch: [18][200/660]	Time 0.156 (0.158)	Data 0.000 (0.003)	Loss 2.0344 (1.7652)	Prec@1 44.271 (54.084)	Prec@5 73.438 (79.947)
+Epoch: [18][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.9250 (1.7719)	Prec@1 51.042 (53.858)	Prec@5 78.125 (79.752)
+Epoch: [18][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.9103 (1.7762)	Prec@1 50.521 (53.824)	Prec@5 78.646 (79.679)
+Test: [0/27]	Time 0.441 (0.441)	Loss 1.6601 (1.6601)	Prec@1 54.687 (54.687)	Prec@5 85.938 (85.938)
+ * Prec@1 48.160 Prec@5 78.320
+--------------------------------------------------------------------------------
+0.029310343066851298
+--------------------------------------------------------------------------------
+Epoch: [19][0/660]	Time 0.527 (0.527)	Data 0.362 (0.362)	Loss 1.7880 (1.7880)	Prec@1 52.083 (52.083)	Prec@5 82.292 (82.292)
+Epoch: [19][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.8573 (1.7339)	Prec@1 51.042 (54.783)	Prec@5 78.125 (80.330)
+Epoch: [19][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.7814 (1.7473)	Prec@1 54.687 (54.486)	Prec@5 78.125 (80.141)
+Epoch: [19][600/660]	Time 0.156 (0.156)	Data 0.000 (0.001)	Loss 1.7592 (1.7510)	Prec@1 56.250 (54.543)	Prec@5 75.521 (80.089)
+Test: [0/27]	Time 0.538 (0.538)	Loss 1.5241 (1.5241)	Prec@1 51.562 (51.562)	Prec@5 88.542 (88.542)
+ * Prec@1 53.160 Prec@5 81.560
+--------------------------------------------------------------------------------
+0.029348463945918613
+--------------------------------------------------------------------------------
+Epoch: [20][0/660]	Time 0.538 (0.538)	Data 0.371 (0.371)	Loss 1.5525 (1.5525)	Prec@1 63.542 (63.542)	Prec@5 79.167 (79.167)
+Epoch: [20][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.6386 (1.7241)	Prec@1 56.250 (54.996)	Prec@5 81.250 (80.607)
+Epoch: [20][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.6666 (1.7333)	Prec@1 57.292 (54.988)	Prec@5 84.375 (80.490)
+Epoch: [20][600/660]	Time 0.156 (0.156)	Data 0.000 (0.001)	Loss 1.6739 (1.7341)	Prec@1 57.812 (54.913)	Prec@5 83.333 (80.428)
+Test: [0/27]	Time 0.457 (0.457)	Loss 1.5748 (1.5748)	Prec@1 52.604 (52.604)	Prec@5 86.979 (86.979)
+ * Prec@1 45.140 Prec@5 74.540
+--------------------------------------------------------------------------------
+0.029281268186039395
+--------------------------------------------------------------------------------
+Epoch: [21][0/660]	Time 0.573 (0.573)	Data 0.406 (0.406)	Loss 1.7395 (1.7395)	Prec@1 55.729 (55.729)	Prec@5 81.771 (81.771)
+Epoch: [21][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.6044 (1.6912)	Prec@1 57.292 (55.835)	Prec@5 83.333 (81.315)
+Epoch: [21][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.8073 (1.7073)	Prec@1 51.042 (55.446)	Prec@5 79.167 (80.927)
+Epoch: [21][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.6559 (1.7189)	Prec@1 58.333 (55.263)	Prec@5 80.208 (80.726)
+Test: [0/27]	Time 0.488 (0.488)	Loss 1.4756 (1.4756)	Prec@1 57.812 (57.812)	Prec@5 84.896 (84.896)
+ * Prec@1 52.800 Prec@5 80.380
+--------------------------------------------------------------------------------
+0.029285251564449735
+--------------------------------------------------------------------------------
+Epoch: [22][0/660]	Time 0.567 (0.567)	Data 0.400 (0.400)	Loss 1.6864 (1.6864)	Prec@1 56.771 (56.771)	Prec@5 81.771 (81.771)
+Epoch: [22][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.6008 (1.7082)	Prec@1 58.333 (55.421)	Prec@5 79.167 (80.861)
+Epoch: [22][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.7376 (1.7125)	Prec@1 54.687 (55.415)	Prec@5 81.771 (80.753)
+Epoch: [22][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.4796 (1.7098)	Prec@1 62.500 (55.448)	Prec@5 82.812 (80.822)
+Test: [0/27]	Time 0.498 (0.498)	Loss 1.4587 (1.4587)	Prec@1 63.542 (63.542)	Prec@5 82.812 (82.812)
+ * Prec@1 54.740 Prec@5 81.720
+--------------------------------------------------------------------------------
+0.02933485103978051
+--------------------------------------------------------------------------------
+Epoch: [23][0/660]	Time 0.668 (0.668)	Data 0.500 (0.500)	Loss 1.7207 (1.7207)	Prec@1 52.604 (52.604)	Prec@5 80.208 (80.208)
+Epoch: [23][200/660]	Time 0.156 (0.159)	Data 0.000 (0.003)	Loss 1.5629 (1.6798)	Prec@1 59.896 (56.069)	Prec@5 82.812 (81.527)
+Epoch: [23][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.7140 (1.6848)	Prec@1 56.250 (56.041)	Prec@5 82.292 (81.325)
+Epoch: [23][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.8115 (1.6909)	Prec@1 51.042 (55.908)	Prec@5 77.604 (81.178)
+Test: [0/27]	Time 0.436 (0.436)	Loss 2.0701 (2.0701)	Prec@1 47.917 (47.917)	Prec@5 77.083 (77.083)
+ * Prec@1 47.300 Prec@5 74.080
+--------------------------------------------------------------------------------
+0.029311002824041577
+--------------------------------------------------------------------------------
+Epoch: [24][0/660]	Time 0.660 (0.660)	Data 0.492 (0.492)	Loss 1.5294 (1.5294)	Prec@1 59.896 (59.896)	Prec@5 83.333 (83.333)
+Epoch: [24][200/660]	Time 0.156 (0.158)	Data 0.000 (0.003)	Loss 1.6602 (1.6664)	Prec@1 54.167 (56.462)	Prec@5 81.250 (81.483)
+Epoch: [24][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.8619 (1.6756)	Prec@1 51.042 (56.372)	Prec@5 77.083 (81.351)
+Epoch: [24][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.6198 (1.6787)	Prec@1 59.896 (56.310)	Prec@5 82.812 (81.269)
+Test: [0/27]	Time 0.447 (0.447)	Loss 1.5299 (1.5299)	Prec@1 58.854 (58.854)	Prec@5 81.250 (81.250)
+ * Prec@1 52.780 Prec@5 80.080
+--------------------------------------------------------------------------------
+0.0293085773785909
+--------------------------------------------------------------------------------
+Epoch: [25][0/660]	Time 0.656 (0.656)	Data 0.488 (0.488)	Loss 1.7304 (1.7304)	Prec@1 56.250 (56.250)	Prec@5 81.771 (81.771)
+Epoch: [25][200/660]	Time 0.156 (0.158)	Data 0.000 (0.003)	Loss 1.6421 (1.6517)	Prec@1 58.333 (56.836)	Prec@5 80.729 (81.675)
+Epoch: [25][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.7726 (1.6623)	Prec@1 52.083 (56.486)	Prec@5 79.167 (81.607)
+Epoch: [25][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.7082 (1.6684)	Prec@1 57.292 (56.470)	Prec@5 78.646 (81.623)
+Test: [0/27]	Time 0.439 (0.439)	Loss 1.9637 (1.9637)	Prec@1 45.833 (45.833)	Prec@5 85.938 (85.938)
+ * Prec@1 49.500 Prec@5 78.840
+--------------------------------------------------------------------------------
+0.029320796926816304
+--------------------------------------------------------------------------------
+Epoch: [26][0/660]	Time 0.557 (0.557)	Data 0.389 (0.389)	Loss 1.6036 (1.6036)	Prec@1 55.208 (55.208)	Prec@5 84.896 (84.896)
+Epoch: [26][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.9246 (1.6480)	Prec@1 47.917 (56.986)	Prec@5 76.562 (81.942)
+Epoch: [26][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.7735 (1.6632)	Prec@1 54.167 (56.588)	Prec@5 82.292 (81.551)
+Epoch: [26][600/660]	Time 0.156 (0.156)	Data 0.000 (0.001)	Loss 1.6461 (1.6659)	Prec@1 58.854 (56.557)	Prec@5 79.167 (81.467)
+Test: [0/27]	Time 0.455 (0.455)	Loss 1.4481 (1.4481)	Prec@1 57.812 (57.812)	Prec@5 86.979 (86.979)
+ * Prec@1 49.880 Prec@5 77.620
+--------------------------------------------------------------------------------
+0.029287943442662556
+--------------------------------------------------------------------------------
+Epoch: [27][0/660]	Time 0.611 (0.611)	Data 0.444 (0.444)	Loss 1.8715 (1.8715)	Prec@1 54.167 (54.167)	Prec@5 78.125 (78.125)
+Epoch: [27][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.3460 (1.6489)	Prec@1 65.625 (56.584)	Prec@5 86.458 (81.833)
+Epoch: [27][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.6446 (1.6573)	Prec@1 55.208 (56.642)	Prec@5 83.333 (81.642)
+Epoch: [27][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.5633 (1.6532)	Prec@1 63.542 (56.799)	Prec@5 82.292 (81.775)
+Test: [0/27]	Time 0.477 (0.477)	Loss 1.5472 (1.5472)	Prec@1 53.646 (53.646)	Prec@5 86.979 (86.979)
+ * Prec@1 52.580 Prec@5 80.020
+--------------------------------------------------------------------------------
+0.029303954839706423
+--------------------------------------------------------------------------------
+Epoch: [28][0/660]	Time 0.592 (0.592)	Data 0.422 (0.422)	Loss 1.6072 (1.6072)	Prec@1 55.729 (55.729)	Prec@5 82.292 (82.292)
+Epoch: [28][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.6781 (1.6183)	Prec@1 56.771 (57.546)	Prec@5 81.250 (82.227)
+Epoch: [28][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.5481 (1.6304)	Prec@1 60.417 (57.422)	Prec@5 81.250 (82.086)
+Epoch: [28][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.7239 (1.6385)	Prec@1 53.125 (57.214)	Prec@5 82.292 (81.993)
+Test: [0/27]	Time 0.499 (0.499)	Loss 2.5225 (2.5225)	Prec@1 40.625 (40.625)	Prec@5 66.667 (66.667)
+ * Prec@1 45.840 Prec@5 73.260
+--------------------------------------------------------------------------------
+0.029306547641754152
+--------------------------------------------------------------------------------
+Epoch: [29][0/660]	Time 0.554 (0.554)	Data 0.389 (0.389)	Loss 1.6836 (1.6836)	Prec@1 57.812 (57.812)	Prec@5 79.167 (79.167)
+Epoch: [29][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.5901 (1.6207)	Prec@1 57.812 (57.380)	Prec@5 83.854 (82.437)
+Epoch: [29][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.4625 (1.6315)	Prec@1 58.854 (57.175)	Prec@5 84.896 (82.167)
+Epoch: [29][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.6798 (1.6344)	Prec@1 53.646 (57.204)	Prec@5 83.854 (82.091)
+Test: [0/27]	Time 0.449 (0.449)	Loss 1.4770 (1.4770)	Prec@1 59.375 (59.375)	Prec@5 85.938 (85.938)
+ * Prec@1 52.720 Prec@5 79.740
+--------------------------------------------------------------------------------
+0.029280491868654886
+--------------------------------------------------------------------------------
+Epoch: [30][0/660]	Time 0.590 (0.590)	Data 0.421 (0.421)	Loss 1.4808 (1.4808)	Prec@1 60.937 (60.937)	Prec@5 86.458 (86.458)
+Epoch: [30][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.1564 (1.3046)	Prec@1 66.667 (65.441)	Prec@5 90.625 (86.894)
+Epoch: [30][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.3206 (1.2490)	Prec@1 67.188 (66.860)	Prec@5 86.979 (87.607)
+Epoch: [30][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.1904 (1.2158)	Prec@1 66.146 (67.646)	Prec@5 90.104 (88.028)
+Test: [0/27]	Time 0.448 (0.448)	Loss 0.5918 (0.5918)	Prec@1 81.250 (81.250)	Prec@5 97.396 (97.396)
+ * Prec@1 70.680 Prec@5 91.000
+--------------------------------------------------------------------------------
+0.029323587748739454
+--------------------------------------------------------------------------------
+Epoch: [31][0/660]	Time 0.553 (0.553)	Data 0.387 (0.387)	Loss 1.1080 (1.1080)	Prec@1 66.667 (66.667)	Prec@5 90.625 (90.625)
+Epoch: [31][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.0404 (1.0942)	Prec@1 68.750 (70.634)	Prec@5 91.667 (89.547)
+Epoch: [31][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 0.9512 (1.0909)	Prec@1 73.438 (70.659)	Prec@5 91.667 (89.543)
+Epoch: [31][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.3195 (1.0855)	Prec@1 65.625 (70.813)	Prec@5 85.417 (89.660)
+Test: [0/27]	Time 0.493 (0.493)	Loss 0.6242 (0.6242)	Prec@1 80.208 (80.208)	Prec@5 96.354 (96.354)
+ * Prec@1 73.340 Prec@5 91.900
+--------------------------------------------------------------------------------
+0.029330008692211574
+--------------------------------------------------------------------------------
+Epoch: [32][0/660]	Time 0.570 (0.570)	Data 0.401 (0.401)	Loss 1.2091 (1.2091)	Prec@1 66.146 (66.146)	Prec@5 86.979 (86.979)
+Epoch: [32][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.0642 (1.0423)	Prec@1 75.521 (72.100)	Prec@5 89.062 (90.254)
+Epoch: [32][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.0567 (1.0407)	Prec@1 71.354 (72.136)	Prec@5 91.146 (90.317)
+Epoch: [32][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.0487 (1.0403)	Prec@1 69.792 (72.106)	Prec@5 91.146 (90.259)
+Test: [0/27]	Time 0.519 (0.519)	Loss 0.6651 (0.6651)	Prec@1 79.167 (79.167)	Prec@5 95.833 (95.833)
+ * Prec@1 72.660 Prec@5 91.820
+--------------------------------------------------------------------------------
+0.029299150970247056
+--------------------------------------------------------------------------------
+Epoch: [33][0/660]	Time 0.598 (0.598)	Data 0.433 (0.433)	Loss 1.1297 (1.1297)	Prec@1 66.146 (66.146)	Prec@5 90.104 (90.104)
+Epoch: [33][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.0498 (0.9962)	Prec@1 71.875 (72.943)	Prec@5 91.146 (90.889)
+Epoch: [33][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.1715 (1.0005)	Prec@1 68.750 (72.927)	Prec@5 90.625 (90.789)
+Epoch: [33][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 0.9668 (0.9974)	Prec@1 69.792 (73.061)	Prec@5 90.104 (90.832)
+Test: [0/27]	Time 0.458 (0.458)	Loss 0.6255 (0.6255)	Prec@1 80.729 (80.729)	Prec@5 96.875 (96.875)
+ * Prec@1 74.380 Prec@5 92.920
+--------------------------------------------------------------------------------
+0.029343397816022236
+--------------------------------------------------------------------------------
+Epoch: [34][0/660]	Time 0.550 (0.550)	Data 0.383 (0.383)	Loss 0.8594 (0.8594)	Prec@1 77.604 (77.604)	Prec@5 93.750 (93.750)
+Epoch: [34][200/660]	Time 0.156 (0.158)	Data 0.000 (0.002)	Loss 1.0198 (0.9719)	Prec@1 74.479 (73.847)	Prec@5 91.667 (91.226)
+Epoch: [34][400/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.1037 (0.9745)	Prec@1 70.312 (73.752)	Prec@5 87.500 (91.095)
+Epoch: [34][600/660]	Time 0.156 (0.157)	Data 0.000 (0.001)	Loss 1.0367 (0.9782)	Prec@1 73.438 (73.632)	Prec@5 90.625 (91.066)
+Test: [0/27]	Time 0.468 (0.468)	Loss 0.5771 (0.5771)	Prec@1 84.896 (84.896)	Prec@5 97.396 (97.396)
+ * Prec@1 74.580 Prec@5 92.960
+--------------------------------------------------------------------------------
+0.029326517780621845
+--------------------------------------------------------------------------------
