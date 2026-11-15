@@ -199,6 +199,13 @@ These numbers are not comparable to the published ImageNet-1k figures (77.42/93.
 — a 100-class problem at 160 px is a fundamentally easier task than 1000 classes at 224 px,
 and the higher accuracy here reflects the task, not a better model.
 
+![Figure 1 — Training and validation accuracy](figures/fig1_accuracy.png)
+
+**Figure 1 — Top-1 (left) and top-5 (right) accuracy per epoch.** Train is the running
+average over the epoch's logged iterations; validation is measured once at epoch end.
+The dashed line marks the ×0.1 LR step at epoch 30; shaded bands and letters mark the
+phases of Table 3. Dots mark the best validation epoch.
+
 ### 4.3 Four-phase training dynamics
 
 **Table 3 — Phase decomposition of the training curve**
@@ -214,6 +221,13 @@ Phase A extracts nearly three-fifths of the final accuracy in the first ten epoc
 Phase B is a long, noisy climb at high learning rate (validation top-1 standard deviation
 over epochs 20–29: **1.23 points**). Phase C is the decisive event. Phase D is
 essentially free of accuracy gain while the network continues to fit the training set.
+
+![Figure 2 — Training loss](figures/fig2_train_loss.png)
+
+**Figure 2 — Training cross-entropy loss.** Faint line: per-batch loss logged every 100
+iterations; solid line: epoch running average. The LR step at epoch 30 produces a
+discontinuous drop from 0.999 to 0.757, after which loss declines slowly for the rest of
+the run. (The log records no aggregate validation loss, so none is plotted.)
 
 ### 4.4 The schedule dominates the observable dynamics
 
@@ -239,6 +253,13 @@ Any ECA-vs-baseline comparison must be read *after* the decay, and differences s
 than roughly 0.4 points (≈2σ in the stable regime) should not be interpreted from single
 runs.
 
+![Figure 3 — Epoch-over-epoch validation change](figures/fig3_val_delta.png)
+
+**Figure 3 — Change in validation top-1 relative to the previous epoch** (epoch 0's
+absolute 11.38% omitted). The single +10.42-point bar at epoch 30 is the LR step; the
+swings of ±3 points through phase B and their collapse to under ±1 point in phase D are
+the noise reduction quantified above.
+
 ### 4.5 The generalization gap inverts, then reopens
 
 Mean train−validation top-1 gap by decade of the run:
@@ -246,6 +267,12 @@ Mean train−validation top-1 gap by decade of the run:
 | Epochs | 0–9 | 10–19 | 20–29 | 30–39 | 40–49 |
 |---|---:|---:|---:|---:|---:|
 | Mean gap (pts) | **−2.61** | +1.06 | +3.35 | +4.21 | **+7.13** |
+
+![Figure 4 — Generalization gap](figures/fig4_gap.png)
+
+**Figure 4 — Train − validation top-1 gap per epoch.** Blue bars: validation exceeds
+training; orange bars: training exceeds validation. Note the transient closing of the
+gap at epoch 30 (+5.38 → +1.45) and the near-monotone widening from epoch 31 to +8.46.
 
 The gap is **negative through most of the first ten epochs** — validation accuracy exceeds
 training accuracy — with 8 of the first 10 epochs below zero and the last negative value at
@@ -406,6 +433,11 @@ python main.py -a eca_resnet50 --ksize 3557 --num-classes 100 \
 ```
 
 Per-epoch metrics: `ECANet_output.txt`. Interactive curves: `accuracy_chart.html`.
+Figures 1–4 are regenerated from the log with:
+
+```bash
+python plot_training.py ECANet_output.txt figures/   # requires matplotlib
+```
 
 ## Appendix B — Selected per-epoch values
 

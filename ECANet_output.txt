@@ -1,4 +1,4 @@
-(.venv) (base) zack@zack-pc:~/Codes/ECANet$ python3 main.py -a eca_resnet50 --ksize 3557 --num-classes 100 --amp --image-size 160 -b 192 --lr 0.075 -j 8 --epochs 50 --action in100 ~/datasets/imagenet-100
+(.venv) (base) zack@zack-pc:~/Codes/ECANet$ python3 main.py -a eca_resnet50 --ksize 3557 --num-classes 100 --amp --image-size 160 -b 192 --lr 0.075 -j 8 --epochs 50 --action in100 ./datasets/imagenet-100
 => creating model 'eca_resnet50'
 Constructing eca_resnet50......
 
